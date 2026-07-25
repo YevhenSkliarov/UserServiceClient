@@ -10,7 +10,7 @@ class UserApiClient {
   constructor(baseUrl) {
     this.baseUrl = baseUrl;
   }
-  //get user by id
+
   async getUser(id) {
     const response = await axios.get(`${this.baseUrl}/users/${id}`, {
       headers: { Accept: 'application/json' },
@@ -18,7 +18,6 @@ class UserApiClient {
     return response.data;
   }
 
-  //create user
   async createUser(user) {
     const response = await axios.post(`${this.baseUrl}/users`, user, {
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
