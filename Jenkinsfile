@@ -22,6 +22,13 @@ pipeline {
         }
     }
 
+    // Fires this pipeline on every push to this repo. This is the normal
+    // entry point for the pact flow: a consumer change re-publishes the
+    // pact and then triggers the provider job below.
+    triggers {
+        githubPush()
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
