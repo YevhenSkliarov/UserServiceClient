@@ -25,8 +25,16 @@ pipeline {
     // Fires this pipeline on every push to this repo. This is the normal
     // entry point for the pact flow: a consumer change re-publishes the
     // pact and then triggers the provider job below.
+    //
+    // Using pollSCM instead of githubPush(): Jenkins here runs on localhost
+    // with no public URL, so GitHub has no way to deliver an inbound
+    // webhook to it. Polling has Jenkins reach out to GitHub instead, which
+    // works with no exposure required. Switch back to githubPush() (plus a
+    // webhook configured on the GitHub repo) if Jenkins ever gets a public
+    // URL — it's push-based and near-instant instead of up-to-a-minute
+    // delayed.
     triggers {
-        githubPush()
+        pollSCM('* * * * *')
     }
 
     options {
