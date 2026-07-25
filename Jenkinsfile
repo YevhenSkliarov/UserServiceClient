@@ -119,4 +119,16 @@ pipeline {
             }
         }
     }
+
+    post {
+        cleanup {
+            // Wipes node_modules etc. so the next build's `npm ci` starts
+            // from an empty workspace instead of fighting a tree left half
+            // torn-down by a prior failed/interrupted build — that
+            // half-torn-down state plus Docker Desktop's bind-mount sync
+            // lag is what produces ENOENT/ENOTEMPTY spam during npm ci.
+            // Requires the Workspace Cleanup plugin.
+            cleanWs()
+        }
+    }
 }
