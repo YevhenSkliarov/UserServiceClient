@@ -6,7 +6,7 @@
     "test": "jest tests --runInBand",
     "broker:up": "docker compose -p pact-broker up -d",
     "broker:down": "docker compose -p pact-broker down",
-    "pact:publish": "dotenv -e .env -- pact-broker publish ./pacts/UserWebClient-UserService.json --consumer-app-version=$(git rev-parse --short HEAD) --branch=$(git rev-parse --abbrev-ref HEAD)",
+    "pact:publish": "dotenv -e .env -- pact-broker publish ./pacts/UserWebClient-UserService.json --consumer-app-version=$(git rev-parse --short HEAD) --branch=${GIT_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}",
     "pact:can-i-deploy": "dotenv -e .env -- pact-broker can-i-deploy --pacticipant UserWebClient --version=$(git rev-parse --short HEAD) --to-environment production",
     "pact:record-deployment": "dotenv -e .env -- pact-broker record-deployment --pacticipant UserWebClient --version=$(git rev-parse --short HEAD) --environment=production"
   },
@@ -18,6 +18,13 @@
     "@pact-foundation/pact-cli": "^18.1.1",
     "dotenv": "^17.4.2",
     "dotenv-cli": "^11.0.0",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "jest-junit": "^17.0.0"
+  },
+  "jest": {
+    "reporters": [
+      "default",
+      ["jest-junit", { "outputDirectory": "reports", "outputName": "junit.xml" }]
+    ]
   }
 }
