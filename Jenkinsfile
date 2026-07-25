@@ -6,7 +6,16 @@
 // pipeline so it re-verifies against what was just published.
 pipeline {
     agent {
-        docker { image 'node:20-bullseye' }
+        docker {
+            image 'node:20-bullseye'
+            // Socket mount lets this container drive the host's Docker
+            // daemon to start docker-compose.yml's Pact Broker (see the
+            // "Start Pact Broker" stage below). --network host puts the
+            // container on the host's network so it can then reach that
+            // broker at localhost:9292 — Linux Docker hosts only, since
+            // host networking isn't supported on Docker Desktop.
+            args '-v /var/run/docker.sock:/var/run/docker.sock --network host'
+        }
     }
 
     options {
@@ -17,9 +26,18 @@ pipeline {
     environment {
         // Same three credentials as the provider pipeline — must point at
         // the same broker. See Jenkinsfile in the user-service repo.
+        // PACT_BROKER_BASE_URL should be http://localhost:9292 to match the
+        // broker started by the stage below.
         PACT_BROKER_BASE_URL = credentials('pact-broker-base-url')
         PACT_BROKER_USERNAME = credentials('pact-broker-username')
         PACT_BROKER_PASSWORD = credentials('pact-broker-password')
+
+        // Consumed by docker-compose.yml's postgres/pact-broker services.
+        // Only reachable from inside the broker's own docker network, so
+        // not treated as a secret like the PACT_BROKER_* creds above.
+        POSTGRES_DB = 'pact_broker'
+        POSTGRES_USER = 'pact_broker'
+        POSTGRES_PASSWORD = 'pact_broker'
 
         // package.json's pact:publish script falls back to
         // `git rev-parse --abbrev-ref HEAD` for --branch, which resolves to
@@ -37,6 +55,36 @@ pipeline {
     }
 
     stages {
+        stage('Start Pact Broker') {
+            steps {
+                // node:20-bullseye has no Docker CLI baked in — install it
+                // so this container can drive the host daemon via the
+                // socket mounted in `agent` above.
+                sh '''
+                    apt-get update -qq
+                    apt-get install -y -qq curl
+                    curl -fsSL https://get.docker.com | sh
+                '''
+                // Shared with the UserService job (same -p project name),
+                // so if that job already started it this is a no-op.
+                sh 'docker compose -p pact-broker up -d'
+                sh '''
+                    for i in $(seq 1 30); do
+                        curl -sf http://localhost:9292/diagnostic/status/heartbeat && exit 0
+                        sleep 2
+                    done
+                    echo "Pact Broker did not become healthy in time" >&2
+                    exit 1
+                '''
+            }
+            // Deliberately no teardown here: the broker is meant to be
+            // shared, long-lived infra (see docker-compose.yml), and the
+            // fire-and-forget UserService build triggered at the end of
+            // this pipeline still needs it running after this job finishes.
+            // Stop it manually with `npm run broker:down` when you're done
+            // exercising both pipelines.
+        }
+
         stage('Install dependencies') {
             steps {
                 sh 'npm ci'
