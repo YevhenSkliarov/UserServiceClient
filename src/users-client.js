@@ -13,14 +13,14 @@ class UserApiClient {
 
   async getUser(id) {
     const response = await axios.get(`${this.baseUrl}/users/${id}`, {
-      headers: { Accept: 'application/json', 'Accept-language': 'en-US' },
+      headers: { Accept: 'application/json' },
     });
     return response.data;
   }
 
   async createUser(user) {
     const response = await axios.post(`${this.baseUrl}/users`, user, {
-      headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'Accept-language': 'en-US' },
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     });
     return response.data;
   }

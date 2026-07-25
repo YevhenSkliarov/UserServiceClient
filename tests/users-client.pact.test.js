@@ -31,7 +31,7 @@ describe('User API Consumer Contract', () => {
       .withRequest({
         method: 'GET',
         path: '/users/1',
-        headers: { Accept: 'application/json', 'Accept-language': 'en-US' },
+        headers: { Accept: 'application/json' },
       })
       .willRespondWith({
         status: 200,
@@ -66,7 +66,7 @@ describe('User API Consumer Contract', () => {
       .withRequest({
         method: 'GET',
         path: '/users/999',
-        headers: { Accept: 'application/json', 'Accept-language': 'en-US' },
+        headers: { Accept: 'application/json' },
       })
       .willRespondWith({
         status: 404,
@@ -93,7 +93,7 @@ describe('User API Consumer Contract', () => {
       .withRequest({
         method: 'POST',
         path: '/users',
-        headers: { 'Content-Type': 'application/json', 'Accept-language': 'en-US' },
+        headers: { 'Content-Type': 'application/json' },
         body: { name: 'Grace Hopper', email: 'grace@example.com' },
       })
       .willRespondWith({
@@ -125,7 +125,7 @@ describe('User API Consumer Contract', () => {
       .withRequest({
         method: 'POST',
         path: '/users',
-        headers: { 'Content-Type': 'application/json', 'Accept-language': 'en-US' },
+        headers: { 'Content-Type': 'application/json' },
         body: { name: 'Incomplete User' },
       })
       .willRespondWith({

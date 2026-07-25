@@ -15,8 +15,7 @@
       ],
       "request": {
         "headers": {
-          "Accept": "application/json",
-          "Accept-language": "en-US"
+          "Accept": "application/json"
         },
         "method": "GET",
         "path": "/users/999"
@@ -59,8 +58,7 @@
       ],
       "request": {
         "headers": {
-          "Accept": "application/json",
-          "Accept-language": "en-US"
+          "Accept": "application/json"
         },
         "method": "GET",
         "path": "/users/1"
@@ -121,7 +119,6 @@
           "name": "Grace Hopper"
         },
         "headers": {
-          "Accept-language": "en-US",
           "Content-Type": "application/json"
         },
         "method": "POST",
@@ -182,7 +179,6 @@
           "name": "Incomplete User"
         },
         "headers": {
-          "Accept-language": "en-US",
           "Content-Type": "application/json"
         },
         "method": "POST",
