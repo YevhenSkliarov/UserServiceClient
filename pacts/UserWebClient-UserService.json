@@ -1,0 +1,231 @@
+{
+  "consumer": {
+    "name": "UserWebClient"
+  },
+  "interactions": [
+    {
+      "description": "a request for a missing user",
+      "providerStates": [
+        {
+          "name": "a user does not exist",
+          "params": {
+            "id": 999
+          }
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Accept-language": "en-US"
+        },
+        "method": "GET",
+        "path": "/users/999"
+      },
+      "response": {
+        "body": {
+          "error": "User not found"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 404
+      }
+    },
+    {
+      "description": "a request for user 1",
+      "providerStates": [
+        {
+          "name": "a user exists",
+          "params": {
+            "email": "ada@example.com",
+            "id": 1,
+            "name": "Ada Lovelace"
+          }
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json",
+          "Accept-language": "en-US"
+        },
+        "method": "GET",
+        "path": "/users/1"
+      },
+      "response": {
+        "body": {
+          "email": "ada@example.com",
+          "id": 1,
+          "name": "Ada Lovelace"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+                }
+              ]
+            },
+            "$.id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a request to create a user",
+      "providerStates": [
+        {
+          "name": "no users exist"
+        }
+      ],
+      "request": {
+        "body": {
+          "email": "grace@example.com",
+          "name": "Grace Hopper"
+        },
+        "headers": {
+          "Accept-language": "en-US",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "email": "grace@example.com",
+          "id": 1,
+          "name": "Grace Hopper"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.email": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+                }
+              ]
+            },
+            "$.id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 201
+      }
+    },
+    {
+      "description": "a request to create a user with missing fields",
+      "providerStates": [
+        {
+          "name": "no users exist"
+        }
+      ],
+      "request": {
+        "body": {
+          "name": "Incomplete User"
+        },
+        "headers": {
+          "Accept-language": "en-US",
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "error": "name and email are required"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.error": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 400
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "13.2.0"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "UserService"
+  }
+}

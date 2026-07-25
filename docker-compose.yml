@@ -1,0 +1,38 @@
+version: "3"
+
+# Spins up a local Pact Broker for trying out publish/can-i-deploy.
+# Run: docker-compose up -d
+# UI:  http://localhost:9292  (user: pact_broker / pass: pact_broker)
+#
+# In a real two-repo setup, the broker is a shared piece of infrastructure —
+# only one instance should be running for both the consumer and provider
+# projects to talk to. This copy exists so this project can be exercised
+# standalone; point PACT_BROKER_BASE_URL at a shared broker instead when
+# working across both projects at once.
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pact-broker-db:/var/lib/postgresql/data
+
+  pact-broker:
+    image: pactfoundation/pact-broker:latest
+    ports:
+      - "9292:9292"
+    environment:
+      PACT_BROKER_PORT: "9292"
+      PACT_BROKER_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
+      PACT_BROKER_BASIC_AUTH_USERNAME: ${PACT_BROKER_USERNAME}
+      PACT_BROKER_BASIC_AUTH_PASSWORD: ${PACT_BROKER_PASSWORD}
+      PACT_BROKER_ALLOW_PUBLIC_READ: "true"
+    depends_on:
+      - postgres
+
+volumes:
+  pact-broker-db:
