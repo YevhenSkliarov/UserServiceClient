@@ -3,7 +3,9 @@
 // Runs the consumer's Pact test (writes pacts/UserWebClient-UserService.json
 // against a Pact mock server, no real provider involved), publishes that
 // contract to the Pact Broker, then triggers the provider (UserService)
-// pipeline so it re-verifies against what was just published.
+// pipeline and waits for it to finish (tests + can-i-deploy + its own
+// deploy) before running this pipeline's own can-i-deploy check and
+// deploying.
 pipeline {
     agent {
         docker {
@@ -131,10 +133,27 @@ pipeline {
 
         stage('Trigger provider verification') {
             steps {
-                // Fire-and-forget: this build doesn't wait on or fail for
-                // the provider pipeline's result, it just kicks it off now
-                // that a new/changed contract is on the broker.
-                build job: env.SERVER_JOB_NAME, wait: false, propagate: false
+                // Waits for the provider job to finish (propagate: true by
+                // default), so a provider failure — failed verification,
+                // failed can-i-deploy, or a failed provider deploy — throws
+                // here and stops this pipeline before it reaches its own
+                // can-i-deploy/deploy stages below.
+                build job: env.SERVER_JOB_NAME, wait: true
+            }
+        }
+
+        stage('Check can I deploy') {
+            steps {
+                sh 'npm run pact:can-i-deploy'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    echo "DEPLOYING CONSUMER SERVICE"
+                '''
+                sh 'npm run pact:record-deployment'
             }
         }
     }
