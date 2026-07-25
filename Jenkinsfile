@@ -54,9 +54,9 @@ pipeline {
         // Consumed by docker-compose.yml's postgres/pact-broker services.
         // Only reachable from inside the broker's own docker network, so
         // not treated as a secret like the PACT_BROKER_* creds above.
-        POSTGRES_DB = 'pact_broker'
-        POSTGRES_USER = 'pact_broker'
-        POSTGRES_PASSWORD = 'pact_broker'
+        POSTGRES_DB = credentials('postgres-db')
+        POSTGRES_USER = credentials('postgres-user')
+        POSTGRES_PASSWORD = credentials('postgres-password')
 
         // package.json's pact:publish script falls back to
         // `git rev-parse --abbrev-ref HEAD` for --branch, which resolves to
